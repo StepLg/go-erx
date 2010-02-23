@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"erx"
+	"os"
 )
 
 const (
@@ -23,14 +24,13 @@ var errors = map[uint]string {
 
 
 func init() {
-	fmt.Println("init called")
 	erx.RegisterScopeMessages(scope, errors)
 	erx.AddPathCut("/home/steplg/quickdoc/workspaces/jtt/")
 }
 
 func main() {
-	fmt.Println("main called")
-	err := erx.NewError(scope, ERROR_ONE)
+	_, osError := os.Open("nonExistedFile.tmp", os.O_RDONLY, 0000)
+	err := erx.NewSequent(scope, ERROR_ONE, osError)
 	err.AddV("var1", "444")
 	err1 := erx.NewSequent(scope, ERROR_TWO, err)
 	formatter := erx.NewStringFormatter("  ")

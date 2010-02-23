@@ -3,6 +3,7 @@ package erx
 import (
 	"strings"
 	"strconv"
+	"os"
 )
 
 var errorMessages map[string]map[uint]string = make(map[string]map[uint]string)
@@ -38,7 +39,7 @@ func (f *StringFormatter) formatLevel(err Error, level int) string {
 		result += strings.Repeat(f.indent, level)
 		result += "Scope variables:\n"
 		for name, val := range err.Variables() {
-			result += strings.Repeat(f.indent, level)
+			result += strings.Repeat(f.indent, level+1)
 			result += name + "\t: "
 			switch i := val.(type) {
 				case string :
@@ -54,12 +55,15 @@ func (f *StringFormatter) formatLevel(err Error, level int) string {
 	
 	curErr := err.Errors().Front()
 	if curErr!=nil {
-		strings.Repeat(f.indent, level)
+		result += strings.Repeat(f.indent, level)
 		result += "Scope errors:\n"
 		for curErr!=nil {
 			switch i := curErr.Value.(type) {
 				case Error :
-					result += f.formatLevel(i, level)
+					result += f.formatLevel(i, level+1)
+				case os.Error :
+					result += strings.Repeat(f.indent, level+1)
+					result += i.String()
 				default :
 					result += "???\n"
 			}
