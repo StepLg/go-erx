@@ -3,6 +3,7 @@ package erx
 import (
 	"strings"
 	"strconv"
+	"fmt"
 	"os"
 )
 
@@ -20,10 +21,6 @@ func NewStringFormatter(indent string) *StringFormatter {
 
 func (f *StringFormatter) Format(err Error) string {
 	return f.formatLevel(err, 0)
-}
-
-type iStringeable interface {
-	String() string
 }
 
 func (f *StringFormatter) formatLevel(err Error, level int) string {
@@ -44,10 +41,10 @@ func (f *StringFormatter) formatLevel(err Error, level int) string {
 			switch i := val.(type) {
 				case string :
 					result += i
-				case iStringeable :
+				case fmt.Stringer :
 					result += i.String()
 				default :
-					result += "???"
+					result += fmt.Sprint(i)
 			}
 			result += "\n"
 		}

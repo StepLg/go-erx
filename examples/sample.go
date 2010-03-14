@@ -22,6 +22,13 @@ var errors = map[uint]string {
 	ERROR_FOUR  : "error four",
 }
 
+type MyType struct {
+    v int
+}
+
+func (m *MyType) String() string {
+    return "Hello error!"
+}
 
 func init() {
 	erx.RegisterScopeMessages(scope, errors)
@@ -29,9 +36,11 @@ func init() {
 }
 
 func main() {
+	var m MyType
 	_, osError := os.Open("nonExistedFile.tmp", os.O_RDONLY, 0000)
 	err := erx.NewSequent(scope, ERROR_ONE, osError)
 	err.AddV("var1", "444")
+	err.AddV("var2", &m)
 	err1 := erx.NewSequent(scope, ERROR_TWO, err)
 	formatter := erx.NewStringFormatter("  ")
 	fmt.Println(formatter.Format(err))
