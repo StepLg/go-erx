@@ -7,8 +7,6 @@ import (
 	"os"
 )
 
-var errorMessages map[string]map[uint]string = make(map[string]map[uint]string)
-
 type StringFormatter struct {
 	indent string
 }
@@ -26,7 +24,7 @@ func (f *StringFormatter) Format(err Error) string {
 func (f *StringFormatter) formatLevel(err Error, level int) string {
 	result := ""
 	result += strings.Repeat(f.indent, level)
-	result += f.getErrorMessage(err.Scope(), err.Code())
+	result += err.Message()
 	result += "\n"
 	result += strings.Repeat(f.indent, level)
 	result += err.File() + ": " + strconv.Itoa(err.Line())
@@ -69,17 +67,3 @@ func (f *StringFormatter) formatLevel(err Error, level int) string {
 	}
 	return result
 }
-
-func (f *StringFormatter) getErrorMessage(scope string, code uint) string {
-	result := "???"
-	if scopeMessages, okScope := errorMessages[scope]; okScope {
-		if msg, okMsg := scopeMessages[code]; okMsg {
-			result = msg
-		}
-	}
-	return result
-}
-
-func RegisterScopeMessages(scope string, messages map[uint]string) {
-	errorMessages[scope] = messages
-} 

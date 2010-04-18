@@ -4,23 +4,9 @@ import (
 	"fmt"
 	"erx"
 	"os"
+	"runtime"
+	"strings"
 )
-
-const (
-	ERROR_ONE = iota
-	ERROR_TWO
-	ERROR_THREE
-	ERROR_FOUR
-)
-
-const scope = "main"
-
-var errors = map[uint]string {
-	ERROR_ONE   : "error one",
-	ERROR_TWO   : "error two",
-	ERROR_THREE : "error three",
-	ERROR_FOUR  : "error four",
-}
 
 type MyType struct {
     v int
@@ -31,17 +17,22 @@ func (m *MyType) String() string {
 }
 
 func init() {
-	erx.RegisterScopeMessages(scope, errors)
-	erx.AddPathCut("/home/steplg/quickdoc/workspaces/jtt/")
+	_, file, _, _ := runtime.Caller(0)
+	index := strings.LastIndex(file, "/")
+	if index!= -1 {
+		dirName := file[0:strings.LastIndex(file, "/")+1]
+		fmt.Println(dirName)
+		erx.AddPathCut(dirName)
+	}
 }
 
 func main() {
 	var m MyType
 	_, osError := os.Open("nonExistedFile.tmp", os.O_RDONLY, 0000)
-	err := erx.NewSequent(scope, ERROR_ONE, osError)
+	err := erx.NewSequent("Sequent error", osError)
 	err.AddV("var1", "444")
 	err.AddV("var2", &m)
-	err1 := erx.NewSequent(scope, ERROR_TWO, err)
+	err1 := erx.NewSequent("Simple error", err)
 	formatter := erx.NewStringFormatter("  ")
 	fmt.Println(formatter.Format(err))
 	fmt.Println(formatter.Format(err1))

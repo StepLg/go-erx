@@ -15,8 +15,7 @@ func AddPathCut(path string) {
 }
 
 type Error interface {
-	Code() uint
-	Scope() string
+	Message() string
 
 	Errors() *list.List
 	Variables() ErrorVariables
@@ -29,8 +28,7 @@ type Error interface {
 }
 
 type error_realization struct {
-	code uint
-	scope string
+	message string
 	
 	file string
 	line int
@@ -39,8 +37,8 @@ type error_realization struct {
 	variables ErrorVariables
 }
 
-func NewError(scope string, code uint) (Error) {
-	err := error_realization{code, scope, "", 0, list.New(), make(map[string] interface{})}
+func NewError(msg string) (Error) {
+	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{})}
 	_, file, line, ok := runtime.Caller(1)
 	if ok {
 		err.file, err.line = file, line
@@ -48,7 +46,7 @@ func NewError(scope string, code uint) (Error) {
 		err.file, err.line = "???", 666
 	}
 	
-	// ищем начало пути файла в pathCuts, чтобы их вырезать
+	// finding path in pathCuts to cut
 	for curPath := pathCuts.Front(); curPath!=nil; curPath = curPath.Next() {
 		if pathStr, isString := curPath.Value.(string); isString {
 			if len(pathStr)<=len(err.file) && err.file[0:len(pathStr)]==pathStr {
@@ -59,8 +57,8 @@ func NewError(scope string, code uint) (Error) {
 	return &err 
 }
 
-func NewSequent(scope string, code uint, error interface{}) (Error) {
-	err := error_realization{code, scope, "", 0, list.New(), make(map[string] interface{})}
+func NewSequent(msg string, error interface{}) (Error) {
+	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{})}
 	_, file, line, ok := runtime.Caller(1)
 	if ok {
 		err.file, err.line = file, line
@@ -68,7 +66,7 @@ func NewSequent(scope string, code uint, error interface{}) (Error) {
 		err.file, err.line = "???", 666
 	}
 	
-	// ищем начало пути файла в pathCuts, чтобы их вырезать
+	// finding path in pathCuts to cut
 	for curPath := pathCuts.Front(); curPath!=nil; curPath = curPath.Next() {
 		if pathStr, isString := curPath.Value.(string); isString {
 			if len(pathStr)<=len(err.file) && err.file[0:len(pathStr)]==pathStr {
@@ -80,12 +78,8 @@ func NewSequent(scope string, code uint, error interface{}) (Error) {
 	return &err 
 }
 
-func (e *error_realization) Code() uint {
-	return e.code
-}
-
-func (e *error_realization) Scope() string {
-	return e.scope
+func (e *error_realization) Message() string {
+	return e.message;
 }
 
 func (e *error_realization) File() string {
