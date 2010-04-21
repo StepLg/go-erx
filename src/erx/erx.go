@@ -23,7 +23,7 @@ type Error interface {
 	File() string
 	Line() int
 
-	AddE(interface{})
+	AddE(err interface{})
 	AddV(name string, value interface{})
 }
 
@@ -37,7 +37,7 @@ type error_realization struct {
 	variables ErrorVariables
 }
 
-func NewError(msg string) (Error) {
+func NewError(msg string) Error {
 	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{})}
 	_, file, line, ok := runtime.Caller(1)
 	if ok {
@@ -54,10 +54,10 @@ func NewError(msg string) (Error) {
 			}
 		}
 	}
-	return &err 
+	return Error(&err)
 }
 
-func NewSequent(msg string, error interface{}) (Error) {
+func NewSequent(msg string, error interface{}) Error {
 	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{})}
 	_, file, line, ok := runtime.Caller(1)
 	if ok {
@@ -75,7 +75,7 @@ func NewSequent(msg string, error interface{}) (Error) {
 		}
 	}
 	err.AddE(error)
-	return &err 
+	return Error(&err) 
 }
 
 func (e *error_realization) Message() string {
