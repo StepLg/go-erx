@@ -40,9 +40,9 @@ type error_realization struct {
 	funcInfo *runtime.Func
 }
 
-func NewError(msg string) Error {
-	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{}), nil}
-	pc, file, line, ok := runtime.Caller(1)
+func newErrorInitializer(level int) *error_realization {
+	err := error_realization{"", "", 0, list.New(), make(map[string] interface{}), nil}
+	pc, file, line, ok := runtime.Caller(level)
 	if ok {
 		err.file, err.line = file, line
 	} else {
@@ -50,23 +50,27 @@ func NewError(msg string) Error {
 	}
 	
 	err.funcInfo = runtime.FuncForPC(pc)
+	return &err
+}
 
-	return Error(&err)
+func NewError(msg string) Error {
+	err := newErrorInitializer(2)
+	err.message = msg
+	return Error(err)
 }
 
 func NewSequent(msg string, error interface{}) Error {
-	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{}), nil}
-	pc, file, line, ok := runtime.Caller(1)
-	if ok {
-		err.file, err.line = file, line
-	} else {
-		err.file, err.line = "???", 666
-	}
-	
-	err.funcInfo = runtime.FuncForPC(pc)
-	
+	err := newErrorInitializer(2)
+	err.message = msg
 	err.AddE(error)
-	return Error(&err) 
+	return Error(err)
+}
+
+func NewSequentLevel(msg string, error interface{}, level int) Error {
+	err := newErrorInitializer(level+2)
+	err.message = msg
+	err.AddE(error)
+	return Error(err)
 }
 
 func (e *error_realization) Message() string {
