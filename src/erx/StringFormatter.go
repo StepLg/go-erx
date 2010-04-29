@@ -24,10 +24,11 @@ func (f *StringFormatter) Format(err Error) string {
 func (f *StringFormatter) formatLevel(err Error, level int) string {
 	result := ""
 	result += strings.Repeat(f.indent, level)
-	result += err.Message()
+	result += transformPath(err.File()) + ":" + strconv.Itoa(err.Line()) + " " + err.Message()
 	result += "\n"
 	result += strings.Repeat(f.indent, level)
-	result += err.File() + ": " + strconv.Itoa(err.Line())
+	funcFile, funcLine := err.Func().FileLine(err.Func().Entry())
+	result += transformPath(funcFile) + ":" + strconv.Itoa(funcLine) + " " + err.Func().Name()
 	result += "\n"
 	level++
 	if len(err.Variables())>0 {
@@ -66,4 +67,17 @@ func (f *StringFormatter) formatLevel(err Error, level int) string {
 		}
 	}
 	return result
+}
+
+// Cut from path first dirs
+func transformPath(path string) string {
+	// finding path in pathCuts to cut
+	for curPath := pathCuts.Front(); curPath!=nil; curPath = curPath.Next() {
+		if pathStr, isString := curPath.Value.(string); isString {
+			if len(pathStr)<=len(path) && path[0:len(pathStr)]==pathStr {
+				return path[len(pathStr):]
+			}
+		}
+	}
+	return path
 }

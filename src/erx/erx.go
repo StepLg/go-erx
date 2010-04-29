@@ -22,6 +22,7 @@ type Error interface {
 	
 	File() string
 	Line() int
+	Func() *runtime.Func
 
 	AddE(err interface{})
 	AddV(name string, value interface{})
@@ -35,16 +36,21 @@ type error_realization struct {
 
 	errors *list.List
 	variables ErrorVariables
+	
+	funcInfo *runtime.Func
 }
 
 func NewError(msg string) Error {
-	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{})}
-	_, file, line, ok := runtime.Caller(1)
+	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{}), nil}
+	pc, file, line, ok := runtime.Caller(1)
 	if ok {
 		err.file, err.line = file, line
 	} else {
 		err.file, err.line = "???", 666
 	}
+	
+	err.funcInfo = runtime.FuncForPC(pc)
+	
 	
 	// finding path in pathCuts to cut
 	for curPath := pathCuts.Front(); curPath!=nil; curPath = curPath.Next() {
@@ -58,22 +64,16 @@ func NewError(msg string) Error {
 }
 
 func NewSequent(msg string, error interface{}) Error {
-	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{})}
-	_, file, line, ok := runtime.Caller(1)
+	err := error_realization{msg, "", 0, list.New(), make(map[string] interface{}), nil}
+	pc, file, line, ok := runtime.Caller(1)
 	if ok {
 		err.file, err.line = file, line
 	} else {
 		err.file, err.line = "???", 666
 	}
 	
-	// finding path in pathCuts to cut
-	for curPath := pathCuts.Front(); curPath!=nil; curPath = curPath.Next() {
-		if pathStr, isString := curPath.Value.(string); isString {
-			if len(pathStr)<=len(err.file) && err.file[0:len(pathStr)]==pathStr {
-				err.file = err.file[len(pathStr):len(err.file)]
-			}
-		}
-	}
+	err.funcInfo = runtime.FuncForPC(pc)
+	
 	err.AddE(error)
 	return Error(&err) 
 }
@@ -88,6 +88,10 @@ func (e *error_realization) File() string {
 
 func (e *error_realization) Line() int {
 	return e.line
+}
+
+func (e *error_realization) Func() *runtime.Func {
+	return e.funcInfo
 }
 
 func (e *error_realization) Errors() *list.List {
