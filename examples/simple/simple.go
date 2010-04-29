@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"../src/erx/_obj/erx"
+	"../../src/erx/_obj/erx"
 	"os"
 	"runtime"
 	"strings"
