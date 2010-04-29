@@ -50,16 +50,7 @@ func NewError(msg string) Error {
 	}
 	
 	err.funcInfo = runtime.FuncForPC(pc)
-	
-	
-	// finding path in pathCuts to cut
-	for curPath := pathCuts.Front(); curPath!=nil; curPath = curPath.Next() {
-		if pathStr, isString := curPath.Value.(string); isString {
-			if len(pathStr)<=len(err.file) && err.file[0:len(pathStr)]==pathStr {
-				err.file = err.file[len(pathStr):len(err.file)]
-			}
-		}
-	}
+
 	return Error(&err)
 }
 
