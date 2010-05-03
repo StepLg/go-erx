@@ -22,16 +22,18 @@ func init() {
 }
 
 func fileSum(fileName string) (result int) {
-	makeError := func(err interface{}) (res erx.Error) {
-		res = erx.NewSequentLevel("Sum integers from file.", err, 1)
-		res.AddV("file name", fileName)
-		return
-	}
+	defer func() {
+		if err := recover(); err!=nil {
+			res := erx.NewSequent("Sum integers from file.", err)
+			res.AddV("file name", fileName)
+			panic(res)			
+		}
+	}()
 
 	result = 0
 	f, err := os.Open(fileName, os.O_RDONLY, 0000)
 	if f==nil {
-		panic(makeError(erx.NewSequent("Open file.", err)))
+		panic(erx.NewSequent("Open file.", err))
 	}
 	
 	reader := bufio.NewReader(f)
@@ -49,7 +51,7 @@ func fileSum(fileName string) (result int) {
 					errErx.AddV("chunk", chunk)
 					errErx.AddV("line num", lineNum)
 					errErx.AddV("chunk num", chunkNum)
-					panic(makeError(errErx))
+					panic(errErx)
 				}
 				result += curInt
 			}
@@ -63,9 +65,22 @@ func fileSum(fileName string) (result int) {
 	}
 	
 	if err!=os.EOF {
-		panic(makeError(erx.NewSequent("Reading from file.", err)))
+		panic(erx.NewSequent("Reading from file.", err))
 	}
 	return
+}
+
+func someOtherFunc(fileName string) {
+	defer func() {
+		if err := recover(); err!=nil {
+			res := erx.NewSequent("Some other function.", err)
+			res.AddV("file name", fileName)
+			
+			panic(res)
+		}
+	}()
+
+	fileSum(fileName)
 }
 
 func main() {
@@ -77,5 +92,5 @@ func main() {
 			}
 		}
 	}()
-	fileSum("ints.txt")
+	someOtherFunc("ints.txt")
 }
