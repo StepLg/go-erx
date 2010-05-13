@@ -81,3 +81,12 @@ func transformPath(path string) string {
 	}
 	return path
 }
+
+func PanicPrinter() {
+	if e := recover(); e!=nil {
+		if erxErr, ok := e.(Error); ok {
+			formatter := NewStringFormatter("  ")
+			fmt.Println(formatter.Format(erxErr) )
+		}
+	}	
+}

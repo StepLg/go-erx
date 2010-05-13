@@ -84,13 +84,6 @@ func someOtherFunc(fileName string) {
 }
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			if errErx, ok := err.(erx.Error); ok {
-				formatter := erx.NewStringFormatter("  ")
-				fmt.Println(formatter.Format(errErx))
-			}
-		}
-	}()
+	defer erx.PanicPrinter()
 	someOtherFunc("ints.txt")
 }
