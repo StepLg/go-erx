@@ -33,7 +33,7 @@ func formatSimpleXML_gen(w io.Writer, err Error, indent bool ,level int) {
 		hyphen = "\n"
 	}
 	if level == 0 {
-		w.Write( []uint8( "<?xml version='1.0' encoding='UTF-8'>" + hyphen ) )
+		w.Write( []uint8( "<?xml version=\"1.0\" encoding=\"UTF-8\">" + hyphen ) )
 	}
 	w.Write( []uint8( strings.Repeat(tab, level) + "<error>" + hyphen ) )
 	w.Write( []uint8( strings.Repeat(tab, level+1) + "<message>" ) )
@@ -48,9 +48,9 @@ func formatSimpleXML_gen(w io.Writer, err Error, indent bool ,level int) {
 	w.Write( []uint8( strings.Repeat(tab, level+1) + "<variables>" + hyphen ) )
 	if len(err.Variables())>0 {
 		for name, val := range err.Variables() {
-			w.Write( []uint8( strings.Repeat(tab, level+2) + "<variable name='" ) ) 
+			w.Write( []uint8( strings.Repeat(tab, level+2) + "<variable name=\"" ) ) 
 				escape(w, name)
-					w.Write( []uint8 ( "'>" ) )
+					w.Write( []uint8 ( "\">" ) )
 			switch i := val.(type) {
 				case string :
 					escape(w, i)
@@ -72,7 +72,7 @@ func formatSimpleXML_gen(w io.Writer, err Error, indent bool ,level int) {
 					formatSimpleXML_gen(w, i, indent, level+1)
 						w.Write( []uint8( hyphen ))
 				case os.Error :
-					w.Write( []uint8( strings.Repeat(tab, level) + "<error type='2'>" + hyphen ) )
+					w.Write( []uint8( strings.Repeat(tab, level) + "<error type=\"2\">" + hyphen ) )
 						w.Write( []uint8( strings.Repeat(tab, level+2) ) )
 							 escape(w, i.String())
 								w.Write( []uint8( hyphen ) )
