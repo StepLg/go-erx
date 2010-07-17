@@ -3,6 +3,7 @@ package erx
 import (
 	"container/list"
 	"runtime"
+	"io"
 )
 
 
@@ -64,6 +65,15 @@ func NewSequent(msg string, error interface{}) Error {
 	err.message = msg
 	err.AddE(error)
 	return Error(err)
+}
+
+func AutoOutput(w io.Writer, outputType string, err Error) {
+	switch outputType {
+		case "XML":
+			FormatSimpleXML(w, err, true)
+		default:
+			FormatConsole(w, err, "\t")
+	}
 }
 
 func NewSequentLevel(msg string, error interface{}, level int) Error {

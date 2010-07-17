@@ -32,8 +32,9 @@ func main() {
 	err := erx.NewSequent("Sequent error", osError)
 	err.AddV("var1", "444")
 	err.AddV("var2", &m)
-	err1 := erx.NewSequent("Simple error", err)
-	formatter := erx.NewStringFormatter("  ")
-	fmt.Println(formatter.Format(err))
-	fmt.Println(formatter.Format(err1))
+	erx.AutoOutput(os.Stdout, "XML", err)
+	//Other output witn inline print
+	fmt.Println("\n ------- \n\n")	
+	err = erx.NewSequent("Simple error", err)
+	erx.AutoOutput(os.Stdout, "XML", err)
 }

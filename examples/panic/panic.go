@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"runtime"
 	"../../src/erx/_obj/erx"
+	"flag"
 )
 
 func init() {
@@ -19,6 +20,7 @@ func init() {
 		fmt.Println(dirName)
 		erx.AddPathCut(dirName)
 	}
+	
 }
 
 func fileSum(fileName string) (result int) {
@@ -70,20 +72,20 @@ func fileSum(fileName string) (result int) {
 	return
 }
 
-func someOtherFunc(fileName string) {
-	defer func() {
-		if err := recover(); err!=nil {
-			res := erx.NewSequent("Some other function.", err)
-			res.AddV("file name", fileName)
-			
-			panic(res)
-		}
-	}()
-
-	fileSum(fileName)
+func flagMode_get() string{
+	var mode *string = flag.String("mode", "console", "mode out: XML, console")
+	flag.Parse()
+	return *mode
 }
 
 func main() {
-	defer erx.PanicPrinter()
-	someOtherFunc("ints.txt")
+	defer func() {
+		if err := recover(); err != nil {
+			if errErx, ok := err.(erx.Error); ok {
+				erx.AutoOutput(os.Stdout, flagMode_get(), errErx)
+			}
+		}
+	}()
+
+	fileSum("ints.txt")
 }

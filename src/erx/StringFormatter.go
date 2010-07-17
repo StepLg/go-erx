@@ -5,69 +5,54 @@ import (
 	"strconv"
 	"fmt"
 	"os"
+	"io"
 )
 
-type StringFormatter struct {
-	indent string
+func FormatConsole(w io.Writer, err Error, tab string) {
+	formatConsole_gen(w, err, tab, 0)
 }
 
-func NewStringFormatter(indent string) *StringFormatter {
-	formatter := new(StringFormatter)
-	formatter.indent = indent
-	return formatter
-}
-
-func (f *StringFormatter) Format(err Error) string {
-	return f.formatLevel(err, 0)
-}
-
-func (f *StringFormatter) formatLevel(err Error, level int) string {
-	result := ""
-	result += strings.Repeat(f.indent, level)
-	result += transformPath(err.File()) + ":" + strconv.Itoa(err.Line()) + " " + err.Message()
-	result += "\n"
-	result += strings.Repeat(f.indent, level)
+func formatConsole_gen(w io.Writer, err Error, tab string, level int) {
+	w.Write( []uint8( strings.Repeat(tab, level) + transformPath(err.File()) + ":" ) )
+			w.Write( []uint8( strconv.Itoa(err.Line()) + " " + err.Message() + "\n" ) )
 	funcFile, funcLine := err.Func().FileLine(err.Func().Entry())
-	result += transformPath(funcFile) + ":" + strconv.Itoa(funcLine) + " " + err.Func().Name()
-	result += "\n"
+	w.Write( []uint8( strings.Repeat(tab, level) + transformPath(funcFile) + ":" ) )
+			w.Write( []uint8( strconv.Itoa(funcLine) + " " + err.Func().Name() + "\n" ) )
 	level++
 	if len(err.Variables())>0 {
-		result += strings.Repeat(f.indent, level)
-		result += "Scope variables:\n"
+		w.Write( []uint8( strings.Repeat(tab, level) + "Scope variables:\n" ) )
 		for name, val := range err.Variables() {
-			result += strings.Repeat(f.indent, level+1)
-			result += name + "\t: "
+			w.Write( []uint8( strings.Repeat(tab, level+1) + name + "\t: " ) )
 			switch i := val.(type) {
 				case string :
-					result += i
+					w.Write( []uint8( i ) )
 				case fmt.Stringer :
-					result += i.String()
+					w.Write( []uint8( i.String() ) )
 				default :
-					result += fmt.Sprint(i)
+					w.Write( []uint8( fmt.Sprint(i) ) )
 			}
-			result += "\n"
+			w.Write( []uint8( "\n" ) )
 		}
 	}
 	
 	curErr := err.Errors().Front()
 	if curErr!=nil {
-		result += strings.Repeat(f.indent, level)
-		result += "Scope errors:\n"
+		w.Write( []uint8( strings.Repeat(tab, level) + "Scope errors:\n" ) )
 		for curErr!=nil {
 			switch i := curErr.Value.(type) {
 				case Error :
-					result += f.formatLevel(i, level+1)
+					w.Write( []uint8( "------" ) )
+					formatConsole_gen(w, i, tab, level+1)
 				case os.Error :
-					result += strings.Repeat(f.indent, level+1)
-					result += i.String()
+					w.Write( []uint8( strings.Repeat(tab, level+1) + i.String() ) )
 				default :
-					result += "???\n"
+					w.Write( []uint8( "???\n" ) )
 			}
 			curErr = curErr.Next()
 		}
 	}
-	return result
 }
+
 
 // Cut from path first dirs
 func transformPath(path string) string {
@@ -80,13 +65,4 @@ func transformPath(path string) string {
 		}
 	}
 	return path
-}
-
-func PanicPrinter() {
-	if e := recover(); e!=nil {
-		if erxErr, ok := e.(Error); ok {
-			formatter := NewStringFormatter("  ")
-			fmt.Println(formatter.Format(erxErr) )
-		}
-	}	
 }
