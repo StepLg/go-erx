@@ -34,21 +34,20 @@ func formatConsole_gen(w io.Writer, err Error, tab string, level int) {
 			w.Write([]uint8("\n"))
 		}
 	}
-
-	curErr := err.Errors().Front()
-	if curErr != nil {
-		w.Write([]uint8(strings.Repeat(tab, level) + "Scope errors:\n"))
-		for curErr != nil {
-			switch i := curErr.Value.(type) {
-			case Error:
-				w.Write([]uint8("------"))
-				formatConsole_gen(w, i, tab, level+1)
-			case os.Error:
-				w.Write([]uint8(strings.Repeat(tab, level+1) + i.String()))
-			default:
-				w.Write([]uint8("???\n"))
+	subErrs := err.Errors()
+	if len(subErrs) > 0 {
+		w.Write([]uint8(strings.Repeat(tab, level)))
+		w.Write([]uint8("Scope errors:\n"))
+		for _, subErr := range subErrs {
+			switch i := subErr.(type) {
+				case Error :
+					formatConsole_gen(w, err, tab, level+1)
+				case os.Error :
+					w.Write([]uint8(strings.Repeat(tab, level+1)))
+					w.Write([]uint8(i.String()))
+				default :
+					w.Write([]uint8("???\n"))
 			}
-			curErr = curErr.Next()
 		}
 	}
 }

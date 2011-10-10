@@ -63,11 +63,11 @@ func formatSimpleXML_gen(w io.Writer, err Error, indent bool, level int) {
 		}
 	}
 	w.Write([]uint8(strings.Repeat(tab, level+1) + "</variables>" + hyphen))
-	curErr := err.Errors().Front()
-	if curErr != nil {
+	subErrs := err.Errors()
+	if len(subErrs) > 0 {
 		w.Write([]uint8(strings.Repeat(tab, level)))
-		for curErr != nil {
-			switch i := curErr.Value.(type) {
+		for _, subErr := range subErrs {
+			switch i := subErr.(type) {
 			case Error:
 				formatSimpleXML_gen(w, i, indent, level+1)
 				w.Write([]uint8(hyphen))
@@ -80,7 +80,6 @@ func formatSimpleXML_gen(w io.Writer, err Error, indent bool, level int) {
 			default:
 				w.Write([]uint8("???" + hyphen))
 			}
-			curErr = curErr.Next()
 		}
 	}
 

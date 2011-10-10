@@ -18,7 +18,7 @@ func AddPathCut(path string) {
 type Error interface {
 	Message() string
 
-	Errors() *list.List
+	Errors() []interface{}
 	Variables() ErrorVariables
 
 	File() string
@@ -99,8 +99,18 @@ func (e *error_realization) Func() *runtime.Func {
 	return e.funcInfo
 }
 
-func (e *error_realization) Errors() *list.List {
-	return e.errors
+func (e *error_realization) Errors() []interface{} {
+	len := 0
+	for item := e.errors.Front(); item != nil; item = item.Next() {
+		len += 1
+	}
+	res := make([]interface{}, len)
+	id := 0
+	for item := e.errors.Front(); item != nil; item = item.Next() {
+		res[id] = item.Value
+		id += 1
+	}
+	return res
 }
 
 func (e *error_realization) Variables() ErrorVariables {
