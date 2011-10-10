@@ -33,7 +33,7 @@ func fileSum(fileName string) (result int) {
 	}()
 
 	result = 0
-	f, err := os.Open(fileName, os.O_RDONLY, 0000)
+	f, err := os.Open(fileName)
 	if f == nil {
 		panic(erx.NewSequent("Open file.", err))
 	}
