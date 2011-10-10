@@ -41,10 +41,10 @@ func formatConsole_gen(w io.Writer, err Error, tab string, level int) {
 		for _, subErr := range subErrs {
 			switch i := subErr.(type) {
 				case Error :
-					formatConsole_gen(w, err, tab, level+1)
+					formatConsole_gen(w, i, tab, level+1)
 				case os.Error :
 					w.Write([]uint8(strings.Repeat(tab, level+1)))
-					w.Write([]uint8(i.String()))
+					w.Write([]uint8(i.String() + "\n"))
 				default :
 					w.Write([]uint8("???\n"))
 			}
