@@ -28,7 +28,7 @@ func init() {
 
 func main() {
 	var m MyType
-	_, osError := os.Open("nonExistedFile.tmp", os.O_RDONLY, 0000)
+	_, osError := os.OpenFile("nonExistedFile.tmp", os.O_RDONLY, 0000)
 	err := erx.NewSequent("Sequent error", osError)
 	err.AddV("var1", "444")
 	err.AddV("var2", &m)

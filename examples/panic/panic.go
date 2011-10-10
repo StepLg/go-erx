@@ -45,7 +45,7 @@ func fileSum(fileName string) (result int) {
 	for err == nil || err == os.EOF {
 		if strings.TrimSpace(line) != "" {
 			chunkNum := 1
-			for _, chunk := range strings.Split(line, " ", 0) {
+			for _, chunk := range strings.Split(line, " ") {
 				var curInt int
 				curInt, err = strconv.Atoi(strings.TrimSpace(chunk))
 				if err != nil {
