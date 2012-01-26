@@ -1,12 +1,12 @@
 package erx
 
 import (
-	"strings"
-	"strconv"
 	"fmt"
-	"os"
 	"io"
-	"xml"
+	"strconv"
+
+	"encoding/xml"
+	"strings"
 )
 
 /**
@@ -71,10 +71,10 @@ func formatSimpleXML_gen(w io.Writer, err Error, indent bool, level int) {
 			case Error:
 				formatSimpleXML_gen(w, i, indent, level+1)
 				w.Write([]uint8(hyphen))
-			case os.Error:
+			case error:
 				w.Write([]uint8(strings.Repeat(tab, level) + "<error type=\"2\">" + hyphen))
 				w.Write([]uint8(strings.Repeat(tab, level+2)))
-				escape(w, i.String())
+				escape(w, i.Error())
 				w.Write([]uint8(hyphen))
 				w.Write([]uint8(strings.Repeat(tab, level+1) + "</error>" + hyphen))
 			default:

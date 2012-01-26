@@ -1,11 +1,11 @@
 package erx
 
 import (
-	"strings"
-	"strconv"
 	"fmt"
-	"os"
 	"io"
+	"strconv"
+
+	"strings"
 )
 
 func FormatConsole(w io.Writer, err Error, tab string) {
@@ -40,18 +40,17 @@ func formatConsole_gen(w io.Writer, err Error, tab string, level int) {
 		w.Write([]uint8("Scope errors:\n"))
 		for _, subErr := range subErrs {
 			switch i := subErr.(type) {
-				case Error :
-					formatConsole_gen(w, i, tab, level+1)
-				case os.Error :
-					w.Write([]uint8(strings.Repeat(tab, level+1)))
-					w.Write([]uint8(i.String() + "\n"))
-				default :
-					w.Write([]uint8("???\n"))
+			case Error:
+				formatConsole_gen(w, i, tab, level+1)
+			case error:
+				w.Write([]uint8(strings.Repeat(tab, level+1)))
+				w.Write([]uint8(i.Error() + "\n"))
+			default:
+				w.Write([]uint8("???\n"))
 			}
 		}
 	}
 }
-
 
 // Cut from path first dirs
 func transformPath(path string) string {
