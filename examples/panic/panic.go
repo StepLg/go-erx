@@ -4,10 +4,11 @@ import (
 	"strings"
 	"strconv"
 	"os"
+	"io"
 	"bufio"
 	"fmt"
 	"runtime"
-	"../../src/erx/_obj/erx"
+	"github.com/StepLg/go-erx/erx"
 	"flag"
 )
 
@@ -42,7 +43,7 @@ func fileSum(fileName string) (result int) {
 
 	line, err := reader.ReadString('\n')
 	lineNum := 1
-	for err == nil || err == os.EOF {
+	for err == nil || err == io.EOF {
 		if strings.TrimSpace(line) != "" {
 			chunkNum := 1
 			for _, chunk := range strings.Split(line, " ") {
@@ -59,14 +60,14 @@ func fileSum(fileName string) (result int) {
 			}
 		}
 
-		if err == os.EOF {
+		if err == io.EOF {
 			break
 		}
 		line, err = reader.ReadString('\n')
 		lineNum++
 	}
 
-	if err != os.EOF {
+	if err != io.EOF {
 		panic(erx.NewSequent("Reading from file.", err))
 	}
 	return

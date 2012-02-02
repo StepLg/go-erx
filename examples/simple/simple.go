@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"../../src/erx/_obj/erx"
+	"github.com/StepLg/go-erx/erx"
 	"os"
 	"runtime"
 	"strings"
